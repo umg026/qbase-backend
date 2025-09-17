@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+  data-sidebar-image="none" data-preloader="disable">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- jsvectormap css -->
+  <link href="/assets/libs/jsvectormap/css/jsvectormap.min.css" rel="stylesheet" type="text/css" />
+
+  <!--Swiper slider css-->
+  <link href="/assets/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+
+  <!-- Layout config Js -->
+  <script src="/assets/js/layout.js"></script>
+  <!-- Bootstrap Css -->
+  <link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <!-- Icons Css -->
+  <link href="/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+  <!-- App Css-->
+  <link href="/assets/css/app.min.css" rel="stylesheet" type="text/css" />
+  <link href="/assets/css/app.css" rel="stylesheet" type="text/css" />
+
+  <!-- custom Css-->
+  <link href="/assets/css/custom.min.css" rel="stylesheet" type="text/css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css" />
+</head>
+
+<body>
+  <!-- Begin page -->
+  <div id="layout-wrapper">
+    <%- include('../layout/header'); -%>
+      <div class="main-content">
+        <div class="page-content">
+          <div class="container-fluid">
+            <h6 class="poopins">Home/user-reachout</h6>
+            <hr />
+            <div class="row">
+              <div class="col">
+                <div class="h-100">
+                  <table id="dbtables" class="table table-striped tabel-bordered" style="width: 100%; overflow-x: auto">
+                    <thead>
+                      <tr>
+                        <th>No.</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Dream Country</th>
+                        <th>Resources</th>
+                        <th>Messages</th>
+                        <th>Received Time</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <!--start back-to-top-->
+  <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+    <i class="ri-arrow-up-line"></i>
+  </button>
+  <!--end back-to-top-->
+
+  <!--preloader-->
+  <div id="preloader">
+    <div id="status">
+      <div class="spinner-border text-primary avatar-sm" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="customizer-setting d-none d-md-block">
+    <div class="btn-info btn-rounded shadow-lg btn btn-icon btn-lg p-2" data-bs-toggle="offcanvas"
+      data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
+      <i class="mdi mdi-spin mdi-cog-outline fs-22"></i>
+    </div>
+  </div>
+
+  <!-- Datatables -->
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script>
+    $(document).ready(function () {
+      $("#dbtables").DataTable({
+        order: [[0, "asc"]],
+        processing: true,
+        serverSide: true,
+        initComplete: function (settings, json) {
+          $("#dbtables").show();
+        },
+        select: true,
+        searching: true, // Enables search box
+        info: true, // Shows table info
+        paging: true, // Enables pagination
+        pageLength: 10, // Default entries per page
+        columns: [
+          {
+            data: null,
+            render: function (data, type, row, meta) {
+              return meta.row + 1; // Serial number starts from 1
+            },
+          },
+          {
+            data: "name",
+            render: function (data, type, row) {
+              return `<div class="truncate">${data}</div>`;
+            },
+          },
+          {
+            data: "email",
+            render: function (data, type, row) {
+              return `<div class="truncate">${data}</div>`;
+            },
+          },
+          {
+            data: "phone",
+            render: function (data, type, row) {
+              return `<div class="truncate">${data}</div>`;
+            },
+          },
+          {
+            data: "selectedCountry",
+            render: function (data, type, row) {
+              return `<div class="truncate">${data}</div>`;
+            },
+          },
+          {
+            data: "resource",
+            render: function (data, type, row) {
+              return data
+                ? `<div class="truncate">${data}</div>`
+                : `<div class="truncate">-</div>`;
+            },
+          },
+          {
+            data: "message",
+            render: function (data, type, row) {
+              return `<div class="truncate">${data}</div>`;
+            },
+          },
+          {
+            data: "created_at",
+            render: function (data, type, row) {
+              if (!data) return `<div class="truncate">-</div>`;
+              const formattedDate = new Date(data)
+                .toISOString()
+                .slice(0, 19)
+                .replace("T", " ");
+              return `<div class="truncate">${formattedDate}</div>`;
+            },
+          },
+          {
+            data: "null",
+            render: function (data, type, row) {
+              return ` <a href="/admin/user-response/${row.id}" type="button" class="btn btn-primary btn-sm edit-btn" data-id="${row.id}"><span class="mdi mdi-eye-outline"></span></a>`;
+            },
+          },
+        ],
+        language: {
+          emptyTable: "No Data to show!",
+        },
+        ajax: {
+          type: "GET",
+          url: "/api/user-response",
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          dataSrc: function (json) {
+            console.log(json);
+            return json.data;
+          },
+          headers: {
+            authorization: `Bearer hsdguefg65sws%xsn$zsxs`, // Replace 'YOUR_API_KEY' with the actual key or environment variable
+          },
+        },
+      });
+
+      $(document).on("change", ".is-responded-checkbox", function () {
+        const id = $(this).data("id");
+        const isChecked = $(this).is(":checked");
+
+        $.ajax({
+          url: `/api/user-response/checked/${id}`,
+          type: "POST",
+          headers: {
+            authorization: `Bearer hsdguefg65sws%xsn$zsxs`,
+          },
+          success: function (response) {
+            $("#dbtables").DataTable().ajax.reload();
+          },
+          error: function (err) {
+            alert("Failed to update status!");
+            $("#dbtables").DataTable().ajax.reload();
+            console.log(err);
+          },
+        });
+      });
+    });
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+
+  <!-- JAVASCRIPT -->
+  <script src="/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/libs/simplebar/simplebar.min.js"></script>
+  <script src="/assets/libs/node-waves/waves.min.js"></script>
+  <script src="/assets/libs/feather-icons/feather.min.js"></script>
+  <script src="/assets/js/pages/plugins/lord-icon-2.1.0.js"></script>
+  <script src="/assets/js/plugins.js"></script>
+
+  <!-- Vector map-->
+  <script src="/assets/libs/jsvectormap/js/jsvectormap.min.js"></script>
+  <script src="/assets/libs/jsvectormap/maps/world-merc.js"></script>
+
+  <!--Swiper slider js-->
+  <script src="/assets/libs/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Dashboard init -->
+  <script src="/assets/js/pages/dashboard-ecommerce.init.js"></script>
+
+  <!-- App js -->
+  <script src="/assets/js/app.js"></script>
+</body>
+
+</html>
