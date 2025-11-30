@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+  data-sidebar-image="none" data-preloader="disable">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="/assets/libs/jsvectormap/css/jsvectormap.min.css" rel="stylesheet" type="text/css" />
+
+  <link href="/assets/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+
+  <script src="/assets/js/layout.js"></script>
+  <link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <link href="/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+  <!-- App Css-->
+  <link href="/assets/css/app.min.css" rel="stylesheet" type="text/css" />
+  <link href="/assets/css/app.css" rel="stylesheet" type="text/css" />
+
+  <!-- custom Css-->
+  <link href="/assets/css/custom.min.css" rel="stylesheet" type="text/css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css" />
+</head>
+
+<body>
+  <!-- Begin page -->
+  <div id="layout-wrapper">
+    <%- include('../layout/header'); -%>
+
+      <div class="main-content">
+        <div class="page-content">
+          <% if (locals.info && locals.info.length> 0) { %>
+            <div class="container">
+              <div class="alert alert-success w-25 alerts-flash" id="myAlert" role="alert">
+                <div class="row">
+                  <div class="col-12 text-center mt-1">
+                    <%= locals.info %>
+                  </div>
+                  <!-- <div class="col-2">
+                                    <button class="btn btn-link btn-primary" id="close"><i class="fa-solid fa-xmark"></i></button>
+                                </div> -->
+                </div>
+              </div>
+            </div>
+            <% } %>
+              <div class="container-fluid">
+                <div class="d-flex justify-content-between mt-2 mb-3">
+                  <h6 class="poopins">Home - agents</h6>
+                  <a href="/admin/agents/create" class="btn btn-success">Create agents</a>
+                </div>
+                <hr />
+                <div class="row">
+                  <div class="col">
+                    <div class="h-100">
+                      <table id="dbtables" class="table table-striped" style="width: 100%; overflow-x: auto">
+                        <thead>
+                          <tr>
+                            <th>No.</th>
+                            <th>Name</th>
+                            <th>Loaction</th>
+                            <th>Duration</th>
+                            <th>Image</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </div>
+      </div>
+  </div>
+
+  <!--start back-to-top-->
+  <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+    <i class="ri-arrow-up-line"></i>
+  </button>
+  <!--end back-to-top-->
+
+  <!--preloader-->
+  <div id="preloader">
+    <div id="status">
+      <div class="spinner-border text-primary avatar-sm" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="customizer-setting d-none d-md-block">
+    <div class="btn-info btn-rounded shadow-lg btn btn-icon btn-lg p-2" data-bs-toggle="offcanvas"
+      data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
+      <i class="mdi mdi-spin mdi-cog-outline fs-22"></i>
+    </div>
+  </div>
+
+  <!-- Datatables -->
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script>
+    $(document).ready(function () {
+      function vanish() {
+        $("#myAlert").fadeOut("fast");
+      }
+      $("#close").click(vanish);
+
+      setTimeout(vanish, 3000);
+    });
+  </script>
+  <script>
+    $(document).ready(function () {
+      const table = $("#dbtables").DataTable({
+        order: [[0, "asc"]],
+        processing: true,
+        serverSide: true,
+        initComplete: function () {
+          $("#dbtables").show();
+        },
+        select: true,
+        searching: true,
+        info: true,
+        paging: true,
+        pageLength: 10,
+
+        // IMPORTANT: data coming from server is in "data" (see backend)
+        ajax: {
+          type: "GET",
+          url: "/agents/list",
+          dataType: "json",
+          contentType: "application/json; charset=utf-8",
+          headers: {
+            authorization: `Bearer hsdguefg65sws%xsn$zsxs`
+          },
+          dataSrc: "data" // returns response.data -> rows array
+        },
+
+        columns: [
+          // serial
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            render: function (data, type, row, meta) {
+              return meta.row + 1 + (meta.settings._iDisplayStart || 0);
+            }
+          },
+
+          // name
+          {
+            data: "name",
+            render: function (data) {
+              const txt = data || "";
+              return `<div class="truncate">${txt.length > 100 ? txt.substr(0, 100) + "…" : txt}</div>`;
+            }
+          },
+
+          // location
+          {
+            data: "location",
+            render: function (data) {
+              const txt = data || "";
+              return `<div class="truncate">${txt.length > 350 ? txt.substr(0, 350) + "…" : txt}</div>`;
+            }
+          },
+
+          // duration (number)
+          {
+            data: "duration",
+            render: function (data) {
+              if (data === null || data === undefined) return "-";
+              return `${data} min`;
+            }
+          },
+
+          // type
+          {
+            data: "type",
+            render: function (data) {
+              return data ? `<div class="badge bg-light text-dark">${data}</div>` : "-";
+            }
+          },
+
+          // image
+          {
+            data: "image",
+            orderable: false,
+            searchable: false,
+            render: function (data) {
+              if (!data) return "No Image";
+              // If you store "/assets/..." and serve "public" as static, this is OK.
+              const url = data.startsWith("/") ? data : `/${data}`;
+              return `<a href="${url}" target="_blank">
+                    <img src="${url}" style="width:50px; height:50px; border-radius:50%;" alt="agent-img" />
+                  </a>`;
+            }
+          },
+
+          // actions
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            render: function (data, type, row) {
+              // row is the full object
+              const slug = row.slug;
+              return `
+            <a href="/admin/agents/${slug}" class="btn btn-primary btn-sm edit-btn" data-slug="${slug}">
+              <span class="mdi mdi-square-edit-outline"></span>
+            </a>
+            <button class="btn btn-danger btn-sm delete-btn" data-slug="${slug}">
+              <span class="mdi mdi-delete"></span>
+            </button>
+          `;
+            }
+          }
+        ],
+
+        language: {
+          emptyTable: "No Agents found!"
+        }
+      });
+
+      // Edit -> navigate to edit page
+      $(document).on("click", ".edit-btn", function () {
+        const slug = $(this).data("slug");
+        if (slug) window.location.href = `/admin/agents/${slug}`;
+      });
+
+      // Delete
+      $(document).on("click", ".delete-btn", function () {
+        const slug = $(this).data("slug");
+        if (!slug) return alert("Invalid agent");
+        if (!confirm("Are you sure you want to delete this agent?")) return;
+
+        $.ajax({
+          url: `/agents/${slug}`,
+          type: "DELETE",
+          headers: { authorization: `Bearer hsdguefg65sws%xsn$zsxs` },
+          success: function () {
+            alert("Agent deleted successfully!");
+            table.ajax.reload(null, false);
+          },
+          error: function (err) {
+            console.error(err);
+            alert(err.responseJSON?.message || "Error deleting agent");
+          }
+        });
+      });
+    });
+  </script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+
+  <!-- JAVASCRIPT -->
+  <script src="/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/libs/simplebar/simplebar.min.js"></script>
+  <script src="/assets/libs/node-waves/waves.min.js"></script>
+  <script src="/assets/libs/feather-icons/feather.min.js"></script>
+  <script src="/assets/js/pages/plugins/lord-icon-2.1.0.js"></script>
+  <script src="/assets/js/plugins.js"></script>
+  <!-- apexcharts -->
+
+  <!-- Vector map-->
+  <script src="/assets/libs/jsvectormap/maps/world-merc.js"></script>
+
+  <!--Swiper slider js-->
+
+  <!-- Dashboard init -->
+
+  <!-- App js -->
+  <script src="/assets/js/app.js"></script>
+</body>
+
+</html>

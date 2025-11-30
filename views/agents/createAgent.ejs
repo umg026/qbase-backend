@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+    data-sidebar-image="none" data-preloader="disable">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- jsvectormap css -->
+    <link href="/assets/libs/jsvectormap/css/jsvectormap.min.css" rel="stylesheet" type="text/css" />
+
+    <!--Swiper slider css-->
+    <link href="/assets/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.3.1/ckeditor5.css">
+
+    <!-- Layout config Js -->
+    <script src="/assets/js/layout.js"></script>
+    <!-- Bootstrap Css -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="/assets/css/app.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/css/app.css" rel="stylesheet" type="text/css" />
+
+    <!-- custom Css-->
+    <link href="/assets/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <!-- 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css"> -->
+
+
+</head>
+
+<body>
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <%- include('../layout/header'); -%>
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="h-100">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="card">
+                                                <div class="card-header align-items-center d-flex">
+                                                    <h4 class="card-title mb-0 flex-grow-1">Add New Agent</h4>
+                                                </div><!-- end card header -->
+                                                <div class="card-body">
+                                                    <div class="live-preview">
+                                                        <form id="agent-form" method="POST" action="/agents/create"
+                                                            enctype="multipart/form-data">
+
+                                                            <div class="row g-3">
+
+                                                                <!-- NAME -->
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-floating">
+                                                                        <input type="text" name="name"
+                                                                            class="form-control"
+                                                                            placeholder="Enter agent name" required>
+                                                                        <label>Agent Name</label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- LOCATION -->
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-floating">
+                                                                        <input type="text" name="location"
+                                                                            class="form-control" placeholder="Location"
+                                                                            required>
+                                                                        <label>Location</label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- DURATION (in minutes) -->
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-floating">
+                                                                        <input type="number" name="duration"
+                                                                            class="form-control"
+                                                                            placeholder="Duration in minutes" min="10"
+                                                                            max="120" required>
+                                                                        <label>Meeting Duration (minutes)</label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- TYPE -->
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-floating">
+                                                                        <select name="type" class="form-select"
+                                                                            required>
+                                                                            <option value="face-to-face">Face-to-Face
+                                                                            </option>
+                                                                            <option value="virtual">Virtual</option>
+                                                                        </select>
+                                                                        <label>Meeting Type</label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- IMAGE UPLOAD -->
+                                                                <div class="col-lg-6">
+                                                                    <label>Agent Image</label><br>
+                                                                    <div class="form-floating mt-1">
+                                                                        <input type="file" name="image"
+                                                                            class="form-control" required>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- TIME SLOTS INPUT -->
+                                                                <div class="col-lg-12 mt-4">
+                                                                    <h5>Weekly Time Slots</h5>
+                                                                    <p class="small text-muted">Add time ranges for each
+                                                                        day. Format: <b>09:00 - 09:30</b></p>
+                                                                </div>
+
+                                                                <div class="col-lg-12" id="timeslot-wrapper">
+                                                                    <!-- Each day section -->
+                                                                    <% const days=["monday", "tuesday" , "wednesday"
+                                                                        , "thursday" , "friday" , "saturday" ]; %>
+                                                                        <% days.forEach(day=> { %>
+                                                                            <div class="border rounded p-3 mb-3">
+                                                                                <h6 class="text-capitalize">
+                                                                                    <%= day %>
+                                                                                </h6>
+
+                                                                                <div id="slot-container-<%= day %>">
+                                                                                </div>
+
+                                                                                <button type="button"
+                                                                                    class="btn btn-sm btn-secondary mt-2"
+                                                                                    onclick="addSlot('<%= day %>')">
+                                                                                    + Add Slot
+                                                                                </button>
+                                                                            </div>
+                                                                            <% }) %>
+
+                                                                </div>
+
+                                                                <!-- Hidden JSON field -->
+                                                                <input type="hidden" name="timeSlots" id="timeSlots">
+
+                                                                <!-- SUBMIT BUTTON -->
+                                                                <div class="col-lg-12 text-end mt-4">
+                                                                    <button type="submit" class="btn btn-primary">Create
+                                                                        Agent</button>
+                                                                </div>
+
+                                                            </div>
+                                                        </form>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!--start back-to-top-->
+    <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+        <i class="ri-arrow-up-line"></i>
+    </button>
+    <!--end back-to-top-->
+
+    <!--preloader-->
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner-border text-primary avatar-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="customizer-setting d-none d-md-block">
+        <div class="btn-info btn-rounded shadow-lg btn btn-icon btn-lg p-2" data-bs-toggle="offcanvas"
+            data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
+            <i class='mdi mdi-spin mdi-cog-outline fs-22'></i>
+        </div>
+    </div>
+
+
+    <script type="importmap">
+        {
+            "imports": {
+                "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.3.1/ckeditor5.js",
+                "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.3.1/"
+            }
+        }
+    </script>
+    <script type="module">
+
+        const token = "hsdguefg65sws%xsn$zsxs";
+        document.getElementById("agent-form").addEventListener("submit", async function (event) {
+            event.preventDefault();  // important
+
+            // prepare the timeSlots JSON
+            const days = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+            let result = {};
+
+            days.forEach(day => {
+                result[day] = [];
+                document.querySelectorAll(`.slot-row-${day}`).forEach(row => {
+                    const start = row.querySelector(".start").value;
+                    const end = row.querySelector(".end").value;
+                    if (start && end) result[day].push({ start, end });
+                });
+            });
+
+            // put timeSlots into hidden input
+            document.getElementById("timeSlots").value = JSON.stringify(result);
+
+            // Prepare formData
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch(this.action, {
+                    method: this.method,
+                    headers: { "Authorization": "Bearer " + token },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert("Agent created successfully!");
+                    this.reset();
+                } else {
+                    alert("Error: " + data.message);
+                }
+
+            } catch (err) {
+                alert("Something went wrong. Please try again.");
+            }
+        });
+    </script>
+    <style>
+        /* Ensure initial alignment is left */
+        .ck-editor__editable {
+            text-align: left !important;
+        }
+    </style>
+    <!-- A friendly reminder to run on a server, remove this during the integration. -->
+    <script>
+        function addSlot(day) {
+            const container = document.getElementById(`slot-container-${day}`);
+
+            const row = document.createElement("div");
+            row.classList.add("row", "g-2", `slot-row-${day}`);
+
+            row.innerHTML = `
+        <div class="col-lg-3">
+            <input type="time" class="form-control start" required>
+        </div>
+
+        <div class="col-lg-3">
+            <input type="time" class="form-control end" required>
+        </div>
+
+        <div class="col-lg-2">
+            <button type="button" class="btn btn-danger btn-sm"
+                onclick="this.parentElement.parentElement.remove()">
+                Remove
+            </button>
+        </div>
+    `;
+
+            container.appendChild(row);
+        }
+        window.onload = function () {
+            if (window.location.protocol === 'file:') {
+                alert('This sample requires an HTTP server. Please serve this file with a web server.');
+            }
+        };
+
+        function updateEditorContent() {
+            // Get CKEditor content and set it to the hidden input field
+            var editorContent = window.editor.getData();
+            document.getElementById('editorContent').value = editorContent;
+        }
+
+    </script>
+
+    <!-- JAVASCRIPT -->
+    <script src="/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/libs/simplebar/simplebar.min.js"></script>
+    <script src="/assets/libs/feather-icons/feather.min.js"></script>
+    <script src="/assets/js/pages/plugins/lord-icon-2.1.0.js"></script>
+    <script src="/assets/js/plugins.js"></script>
+    <!-- Vector map-->
+    <script src="/assets/libs/jsvectormap/js/jsvectormap.min.js"></script>
+    <script src="/assets/libs/jsvectormap/maps/world-merc.js"></script>
+
+    <!--Swiper slider js-->
+
+    <!-- Dashboard init -->
+    <script src="/assets/js/pages/dashboard-ecommerce.init.js"></script>
+
+    <!-- App js -->
+    <script src="/assets/js/app.js"></script>
+</body>
+
+</html>
